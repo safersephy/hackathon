@@ -1,0 +1,41 @@
+[project]
+name = "hackathon"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+    { name = "SaferSephy", email = "t.vandervelden3@student.han.nl" }
+]
+dependencies = [
+    "loguru",
+    "pydantic",
+    "mads-datasets>=0.3.14",
+    "torch>=2.5.0",
+    "torchvision>=0.20.0",
+    "mltrainer>=0.1.128",
+]
+readme = "README.md"
+requires-python = ">= 3.8"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = [
+    "ipykernel",
+]
+
+[tool.ruff]
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "N", "I", "I001"]
+ignore = []
+
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/hackathon"]
