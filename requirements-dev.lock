@@ -41,6 +41,7 @@ click==8.1.7
     # via mlflow-skinny
     # via ray
 cloudpickle==3.1.0
+    # via hyperopt
     # via mlflow-skinny
 comm==0.2.2
     # via ipykernel
@@ -73,6 +74,8 @@ frozenlist==1.5.0
 fsspec==2024.10.0
     # via ray
     # via torch
+future==1.0.0
+    # via hyperopt
 gin-config==0.5.0
     # via mltrainer
 gitdb==4.0.11
@@ -92,6 +95,8 @@ grpcio==1.67.0
     # via tensorboard
 gunicorn==23.0.0
     # via mlflow
+hyperopt==0.2.7
+    # via hackathon
 idna==3.10
     # via requests
 importlib-metadata==8.5.0
@@ -167,9 +172,11 @@ msgpack==1.1.0
 nest-asyncio==1.6.0
     # via ipykernel
 networkx==3.4.2
+    # via hyperopt
     # via torch
 numpy==2.1.2
     # via contourpy
+    # via hyperopt
     # via mads-datasets
     # via matplotlib
     # via mlflow
@@ -228,6 +235,8 @@ ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.3
     # via stack-data
+py4j==0.10.9.7
+    # via hyperopt
 pyarrow==17.0.0
     # via mlflow
     # via ray
@@ -280,6 +289,7 @@ rsa==4.9
 scikit-learn==1.5.2
     # via mlflow
 scipy==1.14.1
+    # via hyperopt
     # via mlflow
     # via scikit-learn
 setuptools==75.2.0
@@ -288,6 +298,7 @@ setuptools==75.2.0
     # via tensorboard
 six==1.16.0
     # via asttokens
+    # via hyperopt
     # via python-dateutil
     # via tensorboard
 smmap==5.0.1
@@ -331,6 +342,7 @@ tornado==6.4.1
     # via ipykernel
     # via jupyter-client
 tqdm==4.66.5
+    # via hyperopt
     # via mads-datasets
     # via mltrainer
     # via torchtext
@@ -352,7 +364,7 @@ typing-extensions==4.12.2
     # via sqlalchemy
     # via torch
     # via torcheval
-tytorch==0.8
+tytorch==0.8.2
     # via hackathon
 tzdata==2024.2
     # via pandas
