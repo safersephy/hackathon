@@ -111,6 +111,7 @@ loguru==0.7.2
     # via hackathon
     # via mads-datasets
     # via mltrainer
+    # via tytorch
 mads-datasets==0.3.14
     # via hackathon
 mako==1.3.6
@@ -126,6 +127,7 @@ matplotlib==3.9.2
     # via mlflow
 mlflow==2.17.0
     # via mltrainer
+    # via tytorch
 mlflow-skinny==2.17.0
     # via mlflow
 mltrainer==0.1.128
@@ -178,6 +180,7 @@ pillow==11.0.0
     # via torchvision
 polars==1.10.0
     # via mads-datasets
+    # via tytorch
 protobuf==5.28.3
     # via mlflow-skinny
     # via ray
@@ -195,6 +198,7 @@ pydantic==2.9.2
     # via hackathon
     # via mads-datasets
     # via mltrainer
+    # via tytorch
 pydantic-core==2.23.4
     # via pydantic
 pyparsing==3.2.0
@@ -209,6 +213,7 @@ pyyaml==6.0.2
     # via ray
 ray==2.37.0
     # via mltrainer
+    # via tytorch
 referencing==0.35.1
     # via jsonschema
     # via jsonschema-specifications
@@ -258,17 +263,24 @@ torch==2.5.0
     # via mltrainer
     # via torchtext
     # via torchvision
+    # via tytorch
 torch-tb-profiler==0.4.3
     # via mltrainer
+torcheval==0.0.7
+    # via tytorch
+torchinfo==1.8.0
+    # via tytorch
 torchtext==0.18.0
     # via mltrainer
 torchvision==0.20.0
     # via hackathon
     # via mltrainer
+    # via tytorch
 tqdm==4.66.5
     # via mads-datasets
     # via mltrainer
     # via torchtext
+    # via tytorch
 typing-extensions==4.12.2
     # via alembic
     # via graphene
@@ -277,6 +289,9 @@ typing-extensions==4.12.2
     # via pydantic-core
     # via sqlalchemy
     # via torch
+    # via torcheval
+tytorch==0.8
+    # via hackathon
 tzdata==2024.2
     # via pandas
 urllib3==2.2.3

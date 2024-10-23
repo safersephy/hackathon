@@ -1,12 +1,22 @@
+
 import torch
+import torch.nn as nn
+import torchvision
+import mlflow
+import mlflow.pytorch
 from loguru import logger
 from mads_datasets import DatasetFactoryProvider, DatasetType
+from torch import optim
+from torchvision import transforms
+from torchvision.models import ResNet18_Weights
+from torch.nn import CrossEntropyLoss
+from torcheval.metrics import MulticlassAccuracy
+from tytorch.trainer import EarlyStopping, Trainer
+from tytorch.utils.mlflow import set_mlflow_experiment
 
 flowersfactory = DatasetFactoryProvider.create_factory(DatasetType.FLOWERS)
 streamers = flowersfactory.create_datastreamer(batchsize=32)
-
-
-from torchvision import transforms
+n_epochs = 30
 
 data_transforms = {
     "train": transforms.Compose(
@@ -41,7 +51,6 @@ class AugmentPreprocessor:
 trainprocessor = AugmentPreprocessor(data_transforms["train"])
 validprocessor = AugmentPreprocessor(data_transforms["val"])
 
-
 train = streamers["train"]
 valid = streamers["valid"]
 train.preprocessor = trainprocessor
@@ -50,31 +59,17 @@ trainstreamer = train.stream()
 validstreamer = valid.stream()
 
 
-import torchvision
-from torchvision.models import ResNet18_Weights
-
 resnet = torchvision.models.resnet18(weights=ResNet18_Weights.DEFAULT)
-
 
 for name, param in resnet.named_parameters():
     param.requires_grad = False
 
-
-print(type(resnet.fc))
 in_features = resnet.fc.in_features
-in_features
-
-import torch.nn as nn
 
 resnet.fc = nn.Sequential(
     nn.Linear(in_features, 5)
-    # nn.Linear(in_features, 128), nn.ReLU(), nn.Dropout(0.1), nn.Linear(128, 5)
 )
 
-
-from mltrainer import metrics
-
-accuracy = metrics.Accuracy()
 
 if torch.backends.mps.is_available() and torch.backends.mps.is_built():
     device = torch.device("mps")
@@ -88,25 +83,32 @@ else:
 logger.info(f"Using {device}")
 
 
-from torch import optim
 
-optimizer = optim.SGD
-scheduler = optim.lr_scheduler.StepLR
+optimizer = optim.SGD(
+    resnet.parameters(), 
+    lr= 0.1,
+    weight_decay=1e-05,
+    momentum=0.9
+    )
 
-from mltrainer import ReportTypes, TrainerSettings
-
-settings = TrainerSettings(
-    epochs=30,
-    metrics=[accuracy],
-    logdir="modellogs/flowers",
+trainer = Trainer(
+    model=resnet,
+    loss_fn=CrossEntropyLoss(),
+    metrics=[MulticlassAccuracy()],
+    optimizer=optimizer,
+    device=device,
     train_steps=len(train),
-    valid_steps=len(valid),
-    reporttypes=[ReportTypes.TENSORBOARD],
-    optimizer_kwargs={"lr": 0.1, "weight_decay": 1e-05, "momentum": 0.9},
-    scheduler_kwargs={"step_size": 10, "gamma": 0.1},
-    earlystop_kwargs=None,
+    valid_steps=len(valid),    
+    lrscheduler=optim.lr_scheduler.StepLR(
+        optimizer=optimizer, 
+        step_size=10, 
+        gamma=0.1),
 )
-settings
 
-# note: this will be very slow without acceleration!
-# trainer.loop()
+set_mlflow_experiment("train")
+with mlflow.start_run():
+    #mlflow.log_params(params)
+    trainer.fit(n_epochs, trainstreamer, validstreamer)
+
+    mlflow.pytorch.log_model(resnet, artifact_path="logged_models/model")
+mlflow.end_run()
