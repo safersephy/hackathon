@@ -9,3 +9,6 @@ wheels/
 # venv
 .venv
 #general excludes
+data/
+ray_tuning_results/
+mlflow.db
