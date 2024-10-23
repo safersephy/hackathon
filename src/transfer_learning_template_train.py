@@ -112,3 +112,4 @@ with mlflow.start_run():
 
     mlflow.pytorch.log_model(resnet, artifact_path="logged_models/model")
 mlflow.end_run()
+
