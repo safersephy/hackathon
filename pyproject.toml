@@ -12,8 +12,12 @@ dependencies = [
     "torch>=2.5.0",
     "torchvision>=0.20.0",
     "mltrainer>=0.1.128",
-    "tytorch>=0.8.2",
     "hyperopt>=0.2.7",
+    "azure-common>=1.1.28",
+    "azure-identity>=1.19.0",
+    "azure-storage-blob>=12.23.1",
+    "python-dotenv>=1.0.1",
+    "tytorch>=0.8.3",
 ]
 readme = "README.md"
 requires-python = ">= 3.8"

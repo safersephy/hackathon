@@ -21,6 +21,15 @@ annotated-types==0.7.0
 attrs==24.2.0
     # via jsonschema
     # via referencing
+azure-common==1.1.28
+    # via hackathon
+azure-core==1.31.0
+    # via azure-identity
+    # via azure-storage-blob
+azure-identity==1.19.0
+    # via hackathon
+azure-storage-blob==12.23.1
+    # via hackathon
 backports-tarfile==1.2.0
     # via jaraco-context
 blinker==1.8.2
@@ -30,6 +39,8 @@ cachetools==5.5.0
     # via mlflow-skinny
 certifi==2024.8.30
     # via requests
+cffi==1.17.1
+    # via cryptography
 charset-normalizer==3.4.0
     # via requests
 click==8.1.7
@@ -41,6 +52,11 @@ cloudpickle==3.1.0
     # via mlflow-skinny
 contourpy==1.3.0
     # via matplotlib
+cryptography==43.0.3
+    # via azure-identity
+    # via azure-storage-blob
+    # via msal
+    # via pyjwt
 cycler==0.12.1
     # via matplotlib
 databricks-sdk==0.36.0
@@ -90,6 +106,8 @@ idna==3.10
 importlib-metadata==8.5.0
     # via keyring
     # via mlflow-skinny
+isodate==0.7.2
+    # via azure-storage-blob
 itsdangerous==2.2.0
     # via flask
 jaraco-classes==3.4.0
@@ -142,6 +160,11 @@ more-itertools==10.5.0
     # via jaraco-functools
 mpmath==1.3.0
     # via sympy
+msal==1.31.0
+    # via azure-identity
+    # via msal-extensions
+msal-extensions==1.2.0
+    # via azure-identity
 msgpack==1.1.0
     # via ray
 networkx==3.4.2
@@ -188,6 +211,8 @@ pillow==11.0.0
 polars==1.10.0
     # via mads-datasets
     # via tytorch
+portalocker==2.10.1
+    # via msal-extensions
 protobuf==5.28.3
     # via mlflow-skinny
     # via ray
@@ -203,6 +228,8 @@ pyasn1==0.6.1
     # via rsa
 pyasn1-modules==0.4.1
     # via google-auth
+pycparser==2.22
+    # via cffi
 pydantic==2.9.2
     # via hackathon
     # via mads-datasets
@@ -210,11 +237,15 @@ pydantic==2.9.2
     # via tytorch
 pydantic-core==2.23.4
     # via pydantic
+pyjwt==2.9.0
+    # via msal
 pyparsing==3.2.0
     # via matplotlib
 python-dateutil==2.9.0.post0
     # via matplotlib
     # via pandas
+python-dotenv==1.0.1
+    # via hackathon
 pytz==2024.2
     # via pandas
 pyyaml==6.0.2
@@ -227,10 +258,12 @@ referencing==0.35.1
     # via jsonschema
     # via jsonschema-specifications
 requests==2.32.3
+    # via azure-core
     # via databricks-sdk
     # via docker
     # via mads-datasets
     # via mlflow-skinny
+    # via msal
     # via ray
     # via torchtext
 rpds-py==0.20.0
@@ -249,6 +282,7 @@ setuptools==75.2.0
     # via opentelemetry-sdk
     # via tensorboard
 six==1.16.0
+    # via azure-core
     # via hyperopt
     # via python-dateutil
     # via tensorboard
@@ -295,6 +329,9 @@ tqdm==4.66.5
     # via tytorch
 typing-extensions==4.12.2
     # via alembic
+    # via azure-core
+    # via azure-identity
+    # via azure-storage-blob
     # via graphene
     # via opentelemetry-sdk
     # via pydantic
@@ -302,7 +339,7 @@ typing-extensions==4.12.2
     # via sqlalchemy
     # via torch
     # via torcheval
-tytorch==0.8.2
+tytorch==0.8.3
     # via hackathon
 tzdata==2024.2
     # via pandas

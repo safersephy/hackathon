@@ -1,4 +1,5 @@
-
+import os
+from dotenv import load_dotenv
 import torch
 import torch.nn as nn
 import torchvision
@@ -20,11 +21,22 @@ from torch.nn import CrossEntropyLoss
 from torcheval.metrics import MulticlassAccuracy
 from tytorch.trainer import EarlyStopping, Trainer
 from tytorch.utils.mlflow import set_best_run_tag_and_log_model, set_mlflow_experiment
+from tytorch.utils.trainer_utils import get_device
 
 tuningmetric = "valid_loss"
 tuninggoal = "min"
-n_trials = 60
-n_epochs = 30
+n_trials = 2
+
+#get environment variables to upload artifacts to central mlflow
+load_dotenv()
+
+experiment_name = set_mlflow_experiment("train",True, tracking_uri="http://madsmlflowwa.azurewebsites.net")
+params = {
+    "lr": tune.loguniform(1e-4,1e-2),
+    "n_epochs": 2
+}
+
+
 
 flowersfactory = DatasetFactoryProvider.create_factory(DatasetType.FLOWERS)
 
@@ -48,7 +60,6 @@ data_transforms = {
 
 flowersfactory.settings.img_size = (500, 500)
 
-
 class AugmentPreprocessor:
     def __init__(self, transform):
         self.transform = transform
@@ -58,28 +69,8 @@ class AugmentPreprocessor:
         X = [self.transform(x) for x in X]
         return torch.stack(X), torch.stack(y)
 
-
-
-
-if torch.backends.mps.is_available() and torch.backends.mps.is_built():
-    device = torch.device("mps")
-elif torch.cuda.is_available():
-    device = torch.device("cuda")
-else:
-    device = "cpu"
-    logger.warning(
-        "This model will take 15-20 minutes on CPU. Consider using accelaration, eg with google colab (see button on top of the page)"
-    )
-logger.info(f"Using {device}")
-
-experiment_name = set_mlflow_experiment("tune")
-params = {
-    "lr": tune.loguniform(1e-4,1e-2),
-    "n_epochs": n_epochs
-}
-
-
-
+device = get_device()
+resnet = torchvision.models.resnet18(weights=ResNet18_Weights.DEFAULT)
 def tune_func(config: dict) -> None:
 
 
@@ -160,7 +151,5 @@ tuner = tune.Tuner(
 results = tuner.fit()
 
 best_result = results.get_best_result(tuningmetric, tuninggoal)
-model = params["model_class"](best_result.config)  # type: ignore
-model.load_state_dict(torch.load(Path(best_result.checkpoint.path) / "model.pth"))
-set_best_run_tag_and_log_model(experiment_name, model, tuningmetric, tuninggoal)
+set_best_run_tag_and_log_model(experiment_name, resnet, tuningmetric, tuninggoal)
 

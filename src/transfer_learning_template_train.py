@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv
 
 import torch
 import torch.nn as nn
@@ -13,10 +15,21 @@ from torch.nn import CrossEntropyLoss
 from torcheval.metrics import MulticlassAccuracy
 from tytorch.trainer import EarlyStopping, Trainer
 from tytorch.utils.mlflow import set_mlflow_experiment
+from tytorch.utils.trainer_utils import get_device
+import tempfile
 
+#get environment variables to upload artifacts to central mlflow
+load_dotenv()
+
+params = {
+    "n_epochs" : 2,
+    "lr" : 0.1
+}
+
+#data prep
 flowersfactory = DatasetFactoryProvider.create_factory(DatasetType.FLOWERS)
 streamers = flowersfactory.create_datastreamer(batchsize=32)
-n_epochs = 30
+
 
 data_transforms = {
     "train": transforms.Compose(
@@ -59,6 +72,7 @@ trainstreamer = train.stream()
 validstreamer = valid.stream()
 
 
+#load model, freeze the params, and create new tail
 resnet = torchvision.models.resnet18(weights=ResNet18_Weights.DEFAULT)
 
 for name, param in resnet.named_parameters():
@@ -70,23 +84,12 @@ resnet.fc = nn.Sequential(
     nn.Linear(in_features, 5)
 )
 
-
-if torch.backends.mps.is_available() and torch.backends.mps.is_built():
-    device = torch.device("mps")
-elif torch.cuda.is_available():
-    device = torch.device("cuda")
-else:
-    device = "cpu"
-    logger.warning(
-        "This model will take 15-20 minutes on CPU. Consider using accelaration, eg with google colab (see button on top of the page)"
-    )
-logger.info(f"Using {device}")
-
-
+#let's train!
+device = get_device()
 
 optimizer = optim.SGD(
     resnet.parameters(), 
-    lr= 0.1,
+    lr=params["lr"],
     weight_decay=1e-05,
     momentum=0.9
     )
@@ -105,10 +108,16 @@ trainer = Trainer(
         gamma=0.1),
 )
 
-set_mlflow_experiment("train")
-with mlflow.start_run():
-    #mlflow.log_params(params)
-    trainer.fit(n_epochs, trainstreamer, validstreamer)
 
-    mlflow.pytorch.log_model(resnet, artifact_path="logged_models/model")
+set_mlflow_experiment("train",True, tracking_uri="http://madsmlflowwa.azurewebsites.net")
+with mlflow.start_run():
+       
+    mlflow.log_params(params)
+    trainer.fit(params["n_epochs"], trainstreamer, validstreamer)
+
+    with tempfile.TemporaryDirectory() as path:
+        model_path = f"{path}/resnet18.pth"
+        torch.save(resnet.state_dict(), model_path)
+        mlflow.log_artifact(path)
+    
 mlflow.end_run()
