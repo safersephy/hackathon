@@ -17,7 +17,7 @@ dependencies = [
     "azure-identity>=1.19.0",
     "azure-storage-blob>=12.23.1",
     "python-dotenv>=1.0.1",
-    "tytorch>=0.8.3",
+    "tytorch>=0.8.5",
 ]
 readme = "README.md"
 requires-python = ">= 3.8"
