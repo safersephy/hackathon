@@ -1,25 +1,22 @@
-import os
-from dotenv import load_dotenv
+from pathlib import Path
+
+import mlflow
+import mlflow.pytorch
 import torch
 import torch.nn as nn
 import torchvision
-import mlflow
-import mlflow.pytorch
-
-from pathlib import Path
+from dotenv import load_dotenv
+from mads_datasets import DatasetFactoryProvider, DatasetType
 from ray import train, tune
 from ray.air.integrations.mlflow import MLflowLoggerCallback
 from ray.tune import TuneConfig
 from ray.tune.search.hyperopt import HyperOptSearch
-
-from loguru import logger
-from mads_datasets import DatasetFactoryProvider, DatasetType
 from torch import optim
-from torchvision import transforms
-from torchvision.models import ResNet18_Weights
 from torch.nn import CrossEntropyLoss
 from torcheval.metrics import MulticlassAccuracy
-from tytorch.trainer import EarlyStopping, Trainer
+from torchvision import transforms
+from torchvision.models import ResNet18_Weights
+from tytorch.trainer import Trainer
 from tytorch.utils.mlflow import set_best_run_tag_and_log_model, set_mlflow_experiment
 from tytorch.utils.trainer_utils import get_device
 
@@ -27,15 +24,13 @@ tuningmetric = "valid_loss"
 tuninggoal = "min"
 n_trials = 2
 
-#get environment variables to upload artifacts to central mlflow
+# get environment variables to upload artifacts to central mlflow
 load_dotenv()
 
-experiment_name = set_mlflow_experiment("train",True, tracking_uri="http://madsmlflowwa.azurewebsites.net")
-params = {
-    "lr": tune.loguniform(1e-4,1e-2),
-    "n_epochs": 2
-}
-
+experiment_name = set_mlflow_experiment(
+    "train", True, tracking_uri="http://madsmlflowwa.azurewebsites.net"
+)
+params = {"lr": tune.loguniform(1e-4, 1e-2), "n_epochs": 2}
 
 
 flowersfactory = DatasetFactoryProvider.create_factory(DatasetType.FLOWERS)
@@ -60,6 +55,7 @@ data_transforms = {
 
 flowersfactory.settings.img_size = (500, 500)
 
+
 class AugmentPreprocessor:
     def __init__(self, transform):
         self.transform = transform
@@ -69,11 +65,12 @@ class AugmentPreprocessor:
         X = [self.transform(x) for x in X]
         return torch.stack(X), torch.stack(y)
 
+
 device = get_device()
 resnet = torchvision.models.resnet18(weights=ResNet18_Weights.DEFAULT)
+
+
 def tune_func(config: dict) -> None:
-
-
     streamers = flowersfactory.create_datastreamer(batchsize=32)
     trainprocessor = AugmentPreprocessor(data_transforms["train"])
     validprocessor = AugmentPreprocessor(data_transforms["val"])
@@ -86,7 +83,6 @@ def tune_func(config: dict) -> None:
     trainstreamer = traindataset.stream()
     validstreamer = validdataset.stream()
 
-
     resnet = torchvision.models.resnet18(weights=ResNet18_Weights.DEFAULT)
 
     for name, param in resnet.named_parameters():
@@ -94,16 +90,11 @@ def tune_func(config: dict) -> None:
 
     in_features = resnet.fc.in_features
 
-    resnet.fc = nn.Sequential(
-        nn.Linear(in_features, 5)
-    )
+    resnet.fc = nn.Sequential(nn.Linear(in_features, 5))
 
     optimizer = optim.SGD(
-        resnet.parameters(), 
-        lr= config["lr"],
-        weight_decay=1e-05,
-        momentum=0.9
-        )
+        resnet.parameters(), lr=config["lr"], weight_decay=1e-05, momentum=0.9
+    )
     trainer = Trainer(
         model=resnet,
         loss_fn=CrossEntropyLoss(),
@@ -112,13 +103,12 @@ def tune_func(config: dict) -> None:
         device=device,
         quiet=True,
         train_steps=len(traindataset),
-        valid_steps=len(validdataset),    
+        valid_steps=len(validdataset),
         lrscheduler=optim.lr_scheduler.StepLR(
-            optimizer=optimizer, 
-            step_size=10, 
-            gamma=0.1),
+            optimizer=optimizer, step_size=10, gamma=0.1
+        ),
     )
-    
+
     mlflow.log_params(config)
 
     n_epochs = int(params.get("n_epochs", 10))  # type: ignore
@@ -152,4 +142,3 @@ results = tuner.fit()
 
 best_result = results.get_best_result(tuningmetric, tuninggoal)
 set_best_run_tag_and_log_model(experiment_name, resnet, tuningmetric, tuninggoal)
-

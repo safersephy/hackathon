@@ -242,7 +242,7 @@ pillow==11.0.0
     # via torchvision
 platformdirs==4.3.6
     # via jupyter-core
-polars==1.10.0
+polars==1.11.0
     # via mads-datasets
     # via tytorch
 portalocker==2.10.1
@@ -299,7 +299,7 @@ pyyaml==6.0.2
 pyzmq==26.2.0
     # via ipykernel
     # via jupyter-client
-ray==2.37.0
+ray==2.38.0
     # via mltrainer
     # via tytorch
 referencing==0.35.1
@@ -401,7 +401,7 @@ typing-extensions==4.12.2
     # via sqlalchemy
     # via torch
     # via torcheval
-tytorch==0.8.3
+tytorch==0.8.6
     # via hackathon
 tzdata==2024.2
     # via pandas

@@ -1,32 +1,27 @@
-import os
-from dotenv import load_dotenv
+import tempfile
 
+import mlflow
+import mlflow.pytorch
 import torch
 import torch.nn as nn
 import torchvision
-import mlflow
-import mlflow.pytorch
-from loguru import logger
+from dotenv import load_dotenv
 from mads_datasets import DatasetFactoryProvider, DatasetType
 from torch import optim
-from torchvision import transforms
-from torchvision.models import ResNet18_Weights
 from torch.nn import CrossEntropyLoss
 from torcheval.metrics import MulticlassAccuracy
-from tytorch.trainer import EarlyStopping, Trainer
+from torchvision import transforms
+from torchvision.models import ResNet18_Weights
+from tytorch.trainer import Trainer
 from tytorch.utils.mlflow import set_mlflow_experiment
 from tytorch.utils.trainer_utils import get_device
-import tempfile
 
-#get environment variables to upload artifacts to central mlflow
+# get environment variables to upload artifacts to central mlflow
 load_dotenv()
 
-params = {
-    "n_epochs" : 2,
-    "lr" : 0.1
-}
+params = {"n_epochs": 2, "lr": 0.1}
 
-#data prep
+# data prep
 flowersfactory = DatasetFactoryProvider.create_factory(DatasetType.FLOWERS)
 streamers = flowersfactory.create_datastreamer(batchsize=32)
 
@@ -72,7 +67,7 @@ trainstreamer = train.stream()
 validstreamer = valid.stream()
 
 
-#load model, freeze the params, and create new tail
+# load model, freeze the params, and create new tail
 resnet = torchvision.models.resnet18(weights=ResNet18_Weights.DEFAULT)
 
 for name, param in resnet.named_parameters():
@@ -80,19 +75,14 @@ for name, param in resnet.named_parameters():
 
 in_features = resnet.fc.in_features
 
-resnet.fc = nn.Sequential(
-    nn.Linear(in_features, 5)
-)
+resnet.fc = nn.Sequential(nn.Linear(in_features, 5))
 
-#let's train!
+# let's train!
 device = get_device()
 
 optimizer = optim.SGD(
-    resnet.parameters(), 
-    lr=params["lr"],
-    weight_decay=1e-05,
-    momentum=0.9
-    )
+    resnet.parameters(), lr=params["lr"], weight_decay=1e-05, momentum=0.9
+)
 
 trainer = Trainer(
     model=resnet,
@@ -101,17 +91,15 @@ trainer = Trainer(
     optimizer=optimizer,
     device=device,
     train_steps=len(train),
-    valid_steps=len(valid),    
-    lrscheduler=optim.lr_scheduler.StepLR(
-        optimizer=optimizer, 
-        step_size=10, 
-        gamma=0.1),
+    valid_steps=len(valid),
+    lrscheduler=optim.lr_scheduler.StepLR(optimizer=optimizer, step_size=10, gamma=0.1),
 )
 
 
-set_mlflow_experiment("train",True, tracking_uri="http://madsmlflowwa.azurewebsites.net")
+set_mlflow_experiment(
+    "train", True, tracking_uri="http://madsmlflowwa.azurewebsites.net"
+)
 with mlflow.start_run():
-       
     mlflow.log_params(params)
     trainer.fit(params["n_epochs"], trainstreamer, validstreamer)
 
@@ -119,5 +107,5 @@ with mlflow.start_run():
         model_path = f"{path}/resnet18.pth"
         torch.save(resnet.state_dict(), model_path)
         mlflow.log_artifact(path)
-    
+
 mlflow.end_run()
