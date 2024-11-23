@@ -1,9 +1,10 @@
 [project]
 name = "hackathon"
 version = "0.1.0"
-description = "Add your description here"
+description = "Default template for PDM package"
 authors = [
-    { name = "SaferSephy", email = "t.vandervelden3@student.han.nl" }
+    { name = "SaferSephy", email = "t.vandervelden3@student.han.nl" },
+    {name = "Kzhanok", email = "104937056+Kzhanok@users.noreply.github.com"},
 ]
 dependencies = [
     "loguru",
@@ -20,11 +21,12 @@ dependencies = [
     "tytorch>=0.8.3",
 ]
 readme = "README.md"
-requires-python = ">= 3.8"
+requires-python = ">=3.11.5, <3.12"
+license = {text = "MIT"}
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
 
 [tool.rye]
 managed = true
@@ -45,3 +47,6 @@ allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/hackathon"]
+
+[tool.pdm]
+distribution = true

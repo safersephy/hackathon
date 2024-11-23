@@ -25,7 +25,7 @@ tuninggoal = "min"
 n_trials = 2
 
 # get environment variables to upload artifacts to central mlflow
-load_dotenv()
+load_dotenv(r"C:\Users\leons\Desktop\hackathon\env")
 
 experiment_name = set_mlflow_experiment(
     "train", True, tracking_uri="http://madsmlflowwa.azurewebsites.net"
@@ -128,7 +128,7 @@ tuner = tune.Tuner(
     ),
     run_config=train.RunConfig(
         storage_path=Path("./ray_tuning_results").resolve(),
-        name=experiment_name,
+        name=experiment_name.replace(":", "_"),
         callbacks=[
             MLflowLoggerCallback(
                 tracking_uri=mlflow.get_tracking_uri(),

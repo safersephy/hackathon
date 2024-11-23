@@ -17,7 +17,7 @@ from tytorch.utils.mlflow import set_mlflow_experiment
 from tytorch.utils.trainer_utils import get_device
 
 # get environment variables to upload artifacts to central mlflow
-load_dotenv()
+load_dotenv(r"C:\Users\leons\Desktop\hackathon\env")
 
 params = {"n_epochs": 2, "lr": 0.1}
 

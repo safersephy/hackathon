@@ -13,3 +13,9 @@ wheels/
 data/
 ray_tuning_results/
 mlflow.db
+
+*env
+.pdm-python
+*.toml
+__init__.py
+*.lock
