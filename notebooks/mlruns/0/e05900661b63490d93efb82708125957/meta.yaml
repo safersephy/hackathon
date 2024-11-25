@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/tijsvandervelden/Development/hackathon/hackathon/notebooks/mlruns/0/e05900661b63490d93efb82708125957/artifacts
+end_time: 1732527440380
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: e05900661b63490d93efb82708125957
+run_name: dapper-smelt-895
+run_uuid: e05900661b63490d93efb82708125957
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1732527440374
+status: 4
+tags: []
+user_id: tijsvandervelden
