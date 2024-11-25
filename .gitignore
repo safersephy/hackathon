@@ -19,3 +19,5 @@ mlflow.db
 *.toml
 __init__.py
 *.lock
+
+*tfevents*

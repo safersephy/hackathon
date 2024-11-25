@@ -24,8 +24,18 @@ trainfile = (datadir / "heart_big_train.parq").resolve()
 validfile = (datadir / "heart_big_valid.parq").resolve()
 trainfile.exists(), validfile.exists()
 
-traindataset = datasets.HeartDataset1D(trainfile, target="target")
-validdataset = datasets.HeartDataset1D(validfile, target="target")
+if torch.backends.mps.is_available() and torch.backends.mps.is_built():
+    device = torch.device("mps")
+    print("Using MPS")
+elif torch.cuda.is_available():
+    device = "cuda:0"
+    print("using cuda")
+else:
+    device = "cpu"
+    print("using cpu")
+
+traindataset = datasets.HeartDataset1DBalancer(trainfile, target="target")
+validdataset = datasets.HeartDataset1DBalancer(validfile, target="target")
 
 config = Config(
     batchsize=128,
@@ -58,14 +68,13 @@ import mlflow
 mlflow.set_tracking_uri(uri)
 mlflow.set_experiment("Test_script")
 
-
 loss_fn = torch.nn.CrossEntropyLoss()
 
 with mlflow.start_run():
     optimizer = torch.optim.Adam
 
     settings = TrainerSettings(
-        epochs=5,
+        epochs=15,
         metrics=[accuracy, f1micro, f1macro, precision, recall],
         logdir="logs/heart1D",
         train_steps=len(trainstreamer),
@@ -93,5 +102,6 @@ with mlflow.start_run():
         traindataloader=trainstreamer.stream(),
         validdataloader=validstreamer.stream(),
         scheduler=None,
+        device=device,
         )
     trainer.loop()
