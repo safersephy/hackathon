@@ -22,8 +22,8 @@ import torch.optim as optim
 uri, dev = config()
 
 datadir = Path('src\Leendert\data\hackathon-data')
-trainfile = (datadir / "heart_big_train.parq").resolve()
-validfile = (datadir / "heart_big_valid.parq").resolve()
+trainfile = (datadir / "heart_big_train_bal.parq").resolve()
+validfile = (datadir / "heart_big_valid_bal.parq").resolve()
 trainfile.exists(), validfile.exists()
 
 if torch.backends.mps.is_available() and torch.backends.mps.is_built():
@@ -36,8 +36,8 @@ else:
     device = "cpu"
     print("using cpu")
 
-traindataset = datasets.HeartDataset1DBalancer(trainfile, target="target", balance=True)
-validdataset = datasets.HeartDataset1DBalancer(validfile, target="target", balance=True)
+traindataset = datasets.HeartDataset1DBalancer(trainfile, target="target", balance=False)
+validdataset = datasets.HeartDataset1DBalancer(validfile, target="target", balance=False)
 
 config = Config(
     batchsize=128,
